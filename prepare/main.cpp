@@ -39,12 +39,14 @@ int m_addr = FXOS8700CQ_SLAVE_ADDR1;
 void FXOS8700CQ_readRegs(int addr, uint8_t *data, int len);
 void FXOS8700CQ_writeRegs(uint8_t *data, int len);
 void get_volocity_XBEE(Arguments *in,Reply *out);
-void get_volocity(float *v);
+void get_volocity(float *v,float *vx,float *vy);
 void collectData();
 void RPC_function();
 RPCFunction rpcGET_VOLOCITY(&get_volocity_XBEE,"GET_VOLOCITY");
 
 float volocity[150];
+float volocity_x[150];
+float volocity_y[150];
 
 void reply_messange(char *xbee_reply, char *messange)
 {
@@ -72,7 +74,7 @@ void check_addr(char *xbee_reply, char *messenger)
     xbee_reply[3] = '\0';
 }
 
-void get_volocity(float *v)
+void get_volocity(float *v,float *vx,float *vy)
 {
     int16_t acc16;
     float t[3];
@@ -97,6 +99,8 @@ void get_volocity(float *v)
     v_y = t[1]*0.1;
     v_horizontal = sqrt(v_x*v_x+v_y*v_y);
     *v = v_horizontal;
+    *vx = v_x;
+    *vy = v_y;
 }
 
 void collectData(){
@@ -104,7 +108,7 @@ void collectData(){
     led = 1;
     pc.printf("start collect");
     for(int i=0;i<100;i++){
-        collectData_queue.call(get_volocity,&volocity[i]);
+        collectData_queue.call(get_volocity,&volocity[i],&volocity_x[i],&volocity_y[i]);
         wait(0.1);
     }
     pc.printf("collect finish");
@@ -116,7 +120,13 @@ void get_volocity_XBEE(Arguments *in,Reply *out){
         char outbuf[6];
         int b=sprintf(outbuf,"%+1.6f",volocity[i]);
         xbee.printf("%s",outbuf);
-        wait(0.2);        
+        wait(0.2);       
+        b=sprintf(outbuf,"%+1.6f",volocity_x[i]);
+        xbee.printf("%s",outbuf);
+        wait(0.2); 
+        b=sprintf(outbuf,"%+1.6f",volocity_y[i]);
+        xbee.printf("%s",outbuf);
+        wait(0.2);  
     }
 }
 

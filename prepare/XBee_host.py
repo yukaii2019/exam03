@@ -39,6 +39,8 @@ print(char.decode())
 print("start sending RPC")
 
 volocity = np.arange(0,10,0.1)
+volocity_x = np.arange(0,10,0.1)
+volocity_y = np.arange(0,10,0.1)
 t = np.arange(0,10,0.1)  #time
 
 s.write("/GET_VOLOCITY/run\r".encode())
@@ -46,6 +48,16 @@ for i in range(0,100):
     char = s.read(9)
     #print(char.decode())
     volocity[i] = float(char.decode())
+    print(volocity[i])
+
+    char = s.read(9)
+    #print(char.decode())
+    volocity_x[i] = float(char.decode())
+    print(volocity[i])
+
+    char = s.read(9)
+    #print(char.decode())
+    volocity_y[i] = float(char.decode())
     print(volocity[i])
 
 # Settings for connection
@@ -79,6 +91,16 @@ mqttc.subscribe(topic, 0)
 #publish
 for i in range(0,100):
     mesg = str(volocity[i])
+    mqttc.publish(topic, mesg)
+    print(mesg)
+    time.sleep(0.1)
+for i in range(0,100):
+    mesg = str(volocity_x[i])
+    mqttc.publish(topic, mesg)
+    print(mesg)
+    time.sleep(0.1)
+for i in range(0,100):
+    mesg = str(volocity_y[i])
     mqttc.publish(topic, mesg)
     print(mesg)
     time.sleep(0.1)

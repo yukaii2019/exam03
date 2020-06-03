@@ -17,6 +17,8 @@ topic = "velocity"
 
 time = np.arange(0,10,0.1) 
 velocity = np.arange(0,10,0.1)
+velocity_x = np.arange(0,10,0.1)
+velocity_y = np.arange(0,10,0.1)
 datanum = 0
 
 # Callbacks
@@ -30,8 +32,14 @@ def on_message(mosq, obj, msg):
     if v==99999:   #ending to disconnect
         print("disconnect")
         mqttc.disconnect()
-    else:
+    elif(datanum<100):
         velocity[datanum] = v
+        datanum = datanum+1
+    elif(datanum<200):
+        velocity_x[datanum] = v
+        datanum = datanum+1
+    elif(datanum<300):
+        velocity_y[datanum] = v
         datanum = datanum+1
 
 def on_subscribe(mosq, obj, mid, granted_qos):
@@ -54,10 +62,16 @@ mqttc.subscribe(topic, 0)
 # Loop forever, receiving messages
 mqttc.loop_forever()
 
-for i in range (0,datanum):  #PRINT TIME AND VELOCITY
+for i in range (0,100):  #PRINT TIME AND VELOCITY_horizontal
     print("time = %f , velocity = %f"%(time[i],velocity[i]))
+for i in range (0,100):  #PRINT TIME AND VELOCITY_x
+    print("time = %f , velocity = %f"%(time[i],velocity_x[i]))
+for i in range (0,100):  #PRINT TIME AND VELOCITY_y
+    print("time = %f , velocity = %f"%(time[i],velocity_y[i]))
 
-plt.plot(time,velocity,color = 'green',linestyle = '-',label = 'number')
+plt.plot(time,velocity,color = 'green',linestyle = '-',label = 'horizontal')
+plt.plot(time,velocity_x,color = 'blue',linestyle = '-',label = 'x')
+plt.plot(time,velocity_y,color = 'green',linestyle = '-',label = 'y')
 plt.xlabel('Time')
 plt.ylabel('velocity')
 plt.show()
